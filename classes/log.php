@@ -145,7 +145,7 @@ class Log
 	public static function write($level, $msg, $method = null)
 	{
 		// defined default error labels
-		static $labels = array(
+		static $oldlabels = array(
 			1  => 'Error',
 			2  => 'Warning',
 			3  => 'Debug',
@@ -161,36 +161,41 @@ class Log
 			return false;
 		}
 
-		// if it's not an array, assume it's an "up to" level
-		if ( ! is_array($loglabels))
-		{
-			$loglabels = array_keys(array_slice($labels, 0, $loglabels, true));
-		}
-
-		// if $level is string, it is custom level.
-		if (is_int($level))
-		{
-			// do we need to log the message with this level?
-			if ( ! in_array($level, $loglabels))
-			{
-				return false;
-			}
-
-			// store the label for this level for future use
-			$level = $labels[$level];
-		}
-		$level = strtoupper($level);
-
 		// if profiling is active log the message to the profile
 		if (\Config::get('profiling'))
 		{
 			\Console::log($method.' - '.$msg);
 		}
 
-		// convert to monolog calls
-		if ( ! $level = array_search($level, static::$levels))
+		// convert the level to monolog standards if needed
+		if (is_int($level) and isset($oldlabels[$level]))
 		{
-			$level = 250;	// convert it to a NOTICE
+			$level = strtoupper($oldlabels[$level]);
+		}
+		if (is_string($level))
+		{
+			if ( ! $level = array_search($level, static::$levels))
+			{
+				$level = 250;	// convert it to a NOTICE
+			}
+		}
+
+		// make sure $level has the correct value
+		if ((is_int($level) and ! isset($labels[$level])) or (is_string($level) and ! array_search(strtoupper($level), $labels)))
+		{
+			throw new \FuelException('Invalid level "'.$level.'" passed to logger()');
+		}
+
+		// if it's not an array, assume it's an "up to" level
+		if ( ! is_array($loglabels))
+		{
+			$loglabels = array_keys(array_slice($labels, 0, $loglabels, true));
+		}
+
+		// do we need to log the message with this level?
+		if ( ! in_array($level, $loglabels))
+		{
+			return false;
 		}
 
 		// log the message
