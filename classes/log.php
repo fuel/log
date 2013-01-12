@@ -161,6 +161,17 @@ class Log
 			return false;
 		}
 
+		// if it's not an array, assume it's an "up to" level
+		if ( ! is_array($loglabels))
+		{
+			$a = array();
+			foreach ($labels as $l => $label)
+			{
+				$l >= $loglabels and $a[] = $l;
+			}
+			$loglabels = $a;
+		}
+
 		// if profiling is active log the message to the profile
 		if (\Config::get('profiling'))
 		{
@@ -176,20 +187,14 @@ class Log
 		{
 			if ( ! $level = array_search($level, static::$levels))
 			{
-				$level = 250;	// convert it to a NOTICE
+				$level = 250;	// can't map it, convert it to a NOTICE
 			}
 		}
 
 		// make sure $level has the correct value
-		if ((is_int($level) and ! isset($labels[$level])) or (is_string($level) and ! array_search(strtoupper($level), $labels)))
+		if ((is_int($level) and ! isset(static::$levels[$level])) or (is_string($level) and ! array_search(strtoupper($level), static::$levels)))
 		{
 			throw new \FuelException('Invalid level "'.$level.'" passed to logger()');
-		}
-
-		// if it's not an array, assume it's an "up to" level
-		if ( ! is_array($loglabels))
-		{
-			$loglabels = array_keys(array_slice($labels, 0, $loglabels, true));
 		}
 
 		// do we need to log the message with this level?
