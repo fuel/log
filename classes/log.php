@@ -165,7 +165,7 @@ class Log
 		if ( ! is_array($loglabels))
 		{
 			$a = array();
-			foreach ($labels as $l => $label)
+			foreach (static::$levels as $l => $label)
 			{
 				$l >= $loglabels and $a[] = $l;
 			}
