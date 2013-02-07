@@ -44,6 +44,11 @@ class Log
 	 */
 	public static function _init()
 	{
+    // if the monolog instance exists, return
+    if(!is_null(static::$monolog)) {
+      return;
+    }
+
 		// load the file config
 		\Config::load('file', true);
 
