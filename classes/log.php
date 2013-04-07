@@ -130,6 +130,66 @@ class Log
 		return static::write(\Fuel::L_ERROR, $msg, $method);
 	}
 
+	public static function i(){
+		return static::writeLog(\Fuel::L_INFO, func_get_args(), debug_backtrace());
+	}
+
+	public static function d(){
+		return static::writeLog(\Fuel::L_DEBUG, func_get_args(), debug_backtrace());
+	}
+
+	public static function w(){
+		return static::writeLog(\Fuel::L_WARNING, func_get_args(), debug_backtrace());
+	}
+	public static function e(){
+		return static::writeLog(\Fuel::L_ERROR, func_get_args(), debug_backtrace());
+	}
+
+	private static function writeLog($level, $msgs, $traces){
+		return static::write($level, static::parseArrays($msgs, static::parseBacktrace($traces)));
+	}
+
+	/**
+	 * Parse output messages
+	 *
+	 * @param   array  $args     The log message
+	 * @return  string flat string
+	 */
+	private static function parseArrays($args){
+		$msg = array();
+		foreach($args as $arg){
+			if (is_array($arg)){
+				$msg[] = print_r($arg, true);
+			}else if (is_object($arg)){
+				$msg[] = var_export($arg, true);
+			}else{
+				$msg[] = $arg;
+			}
+		}
+		return implode(' ', $msg);
+	}
+
+	/**
+	 * Parse backtraces
+	 *
+	 * @param   object  $backTraces backtrace
+	 * @return  string  call logging class and function name
+	 */
+	private static function parseBacktrace($backTraces){
+		$method = '';
+		if($backTraces && isset($backTraces[1])){
+			$caller = $backTraces[1];
+			$method = array();
+			if(isset($caller['class'])){
+				$method[] = $caller['class'];
+			}
+			if(isset($caller['function'])){
+				$method[] = $caller['function'];
+			}
+			$method = implode('::', $method);
+		}
+		return $method;
+	}
 
 	/**
 	 * Write Log File
