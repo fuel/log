@@ -149,7 +149,7 @@ class Log
 	 */
 	public static function d()
 	{
-		return static::writeLog(\Fuel::L_DEBUG, func_get_args(), debug_backtrace());
+		return static::write_log(\Fuel::L_DEBUG, func_get_args(), debug_backtrace());
 	}
 
 	/**
@@ -160,7 +160,7 @@ class Log
 	 */
 	public static function w()
 	{
-		return static::writeLog(\Fuel::L_WARNING, func_get_args(), debug_backtrace());
+		return static::write_log(\Fuel::L_WARNING, func_get_args(), debug_backtrace());
 	}
 
 	/**
@@ -171,7 +171,7 @@ class Log
 	 */
 	public static function e()
 	{
-		return static::writeLog(\Fuel::L_ERROR, func_get_args(), debug_backtrace());
+		return static::write_log(\Fuel::L_ERROR, func_get_args(), debug_backtrace());
 	}
 
 	/**
@@ -184,7 +184,7 @@ class Log
 	 */
 	private static function write_log($level, $msgs, $traces)
 	{
-		return static::write($level, static::parse_arrays($msgs, static::parase_backtraces($traces)));
+		return static::write($level, static::parse_arrays($msgs, static::parse_backtraces($traces)));
 	}
 
 	/**
